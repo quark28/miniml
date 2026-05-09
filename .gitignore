@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.Python
+
+# Виртуальные окружения
+venv/
+env/
+.venv/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# Файлы окружения
+.env
+.venv
+
+# OS мусор
+.DS_Store
+Thumbs.db
+
+# Логи и данные (не заливаем)
+*.log
+*.csv
+*.pkl
+*.npy
+data/
+checkpoints/
+
+# Временные файлы
+tmp/
+temp/
