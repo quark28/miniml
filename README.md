@@ -25,12 +25,17 @@
 - Neural Networks
 
 ### Optimizers (Gradient Descent)
-- Batch GD
+- Classic GD
 - SGD (Stochastic Gradient Descent)
 - SAG (Stochastic Average Gradient)
+- momentum
+- NAG – Nesterov’s accelerated gradient
+- AdaDelta (adaptive learning rate)
 - AdaGrad
 - Adam
+- Nadam (Nesterov-accelerated adaptive momentum)
 - RMSprop
+- The Levenberg-Marquardt Diagonal Method
 
 ### Analytical Solvers
 - Classic (Normal Equation)
