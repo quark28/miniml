@@ -6,7 +6,7 @@ class LinearRegression():
     _losses = ('mse', 'mae', 'huber', 'log-cosh')
     _regularizers = {'lasso': 'L1', 'ridge': 'L2', 'elasticnet': 'elasticnet', 'none': None}
     _metrics = ('mse', 'rmse', 'mae', 'r^2', 'adjusted_r^2', 'mape')
-    _eta's = ('constant', 'decay')
+    _lr's = ('constant', 'decay')
     _learning types = ('analytic' - ('classic', 'svd'), 'gd', 'sgd', 'sag', 'adagrad', 'adam', 'rmsprop')
     '''
     #===========================================================================
@@ -40,16 +40,14 @@ class LinearRegression():
     def _none_func_derivative(*args):
         return 0
     
-
     # Loss
     @staticmethod
     def _mse_loss_func(y_pred, y_true):
-        return (y_pred - y_true) ** 2
+        return np.mean((y_pred - y_true) ** 2)
     @staticmethod
     def _mse_loss_func_derivative(y_pred, y_true, X):
         N = X.shape[0]
         return 2 / N * X.T @ (y_pred - y_true)
-
 
     @staticmethod
     def _mae_loss_func(y_pred, y_true,):
@@ -58,7 +56,6 @@ class LinearRegression():
     def _mae_loss_func_derivative(y_pred, y_true, X):
         N = X.shape[0]
         return (1 / N) * X.T @ np.sign(y_pred - y_true)
-
 
     def _huber_loss_func(self, y_pred, y_true):
         delta = self.delta
@@ -124,6 +121,10 @@ class LinearRegression():
         else:
             self.regularizator_func = self._none_func
             self.regularizator_func_derivative = self._none_func_derivative
+        
+        self.w = None
+        self.coefficients = None
+        self.bias = None
 
     def _analytic_solution(self, X, y, ad_type):
 
@@ -168,27 +169,22 @@ class LinearRegression():
         grad_reg = self.regularizator_func_derivative(self.w)
         return grad_loss + grad_reg
 
-    def _gradient_descent(self, X, y, n_steps, quality_limit, lr, lr_type, decay_rate):
+    def _gradient_descent(self, X, y, n_steps, quality_limit, lr_, lr_type, decay_rate):
         X_with_bias = np.c_[X, np.ones(X.shape[0])] #add 1-column for bias
         self.w = np.random.randn(X_with_bias.shape[1]) if not hasattr(self, 'w') else self.w
 
         Q_prev = np.inf
         for i in range(n_steps):
-            y_pred = X_with_bias @ self.w
-
-            lr = self._get_lr(lr, lr_type, i, decay_rate)
-
+            lr = self._get_lr(lr_, lr_type, i, decay_rate)
             self.w = self.w - lr * self._compute_gradient(X_with_bias, y)
-
             y_prednew = X_with_bias @ self.w
             Q_current = self.loss_func(y_prednew, y)
-
             if quality_limit and abs(Q_prev - Q_current) < quality_limit:
                 break
             Q_prev = Q_current
         return self.w
 
-    def _stochastic_gradient_descent(self, X, y, n_steps, quality_limit, lr, lr_type, decay_rate, batch_size):
+    def _stochastic_gradient_descent(self, X, y, n_steps, quality_limit, lr_, lr_type, decay_rate, batch_size):
         X_with_bias = np.c_[X, np.ones(X.shape[0])] #add 1-column for bias
         self.w = np.random.randn(X_with_bias.shape[1]) if not hasattr(self, 'w') else self.w
 
@@ -199,11 +195,40 @@ class LinearRegression():
                 )
             object_X = X_with_bias[idx]
             object_y = y[idx]
+            lr = self._get_lr(lr_, lr_type, i, decay_rate)
+            self.w = self.w - lr * self._compute_gradient(object_X, object_y)
+            y_prednew = object_X @ self.w
+            Q_current = self.loss_func(y_prednew, object_y)
+            if quality_limit and abs(Q_prev - Q_current) < quality_limit:
+                break
+            Q_prev = Q_current
+        return self.w
+
+    def _stochastic_average_gradient(self, X, y, n_steps, quality_limit, lr_, lr_type, decay_rate, batch_size):
+        X_with_bias = np.c_[X, np.ones(X.shape[0])] #add 1-column for bias
+        self.w = np.random.randn(X_with_bias.shape[1]) if not hasattr(self, 'w') else self.w
+
+        grads = np.empty(X_with_bias.shape)
+        for idx in range(X_with_bias.shape[0]):
+            grads[idx] = self._compute_gradient(X_with_bias[idx:idx+1], y[idx:idx+1])
+        avg_grad = np.mean(grads)
+
+        y_pred = X_with_bias @ self.w
+        Q_prev = self.loss_func(y_pred, y)
+        for i in range(n_steps):
+            idx = np.random.choice(
+                np.arange(0, X_with_bias.shape[0]), batch_size, replace=False
+                )
+            object_X = X_with_bias[idx]
+            object_y = y[idx]
 
             y_pred = object_X @ self.w
 
-            lr = self._get_lr(lr, lr_type, i, decay_rate)
-            self.w = self.w - lr * self._compute_gradient(object_X, object_y)
+            lr = self._get_lr(lr_, lr_type, i, decay_rate)
+
+            new_grads = self._compute_gradient(object_X, object_y)
+            avg_grad += (new_grads - grads[idx]) / X_with_bias.shape[0]
+            self.w = self.w - lr * avg_grad
             y_prednew = object_X @ self.w
             Q_current = self.loss_func(y_prednew, object_y)
             if quality_limit and abs(Q_prev - Q_current) < quality_limit:
@@ -239,9 +264,10 @@ class LinearRegression():
             self.coefficients = self.w[:-1]
             self.bias = self.w[-1]
     
-        elif learning_type in ('stohastic_average_gradient', 'sag', 'SAG'):
-            # 3
-            result = 3
+        elif learning_type in ('stochastic_average_gradient', 'sag', 'SAG'):
+            self.w = self._stochastic_average_gradient(X, y, n_steps, quality_limit, lr, lr_type, decay_rate, batch_size)
+            self.coefficients = self.w[:-1]
+            self.bias = self.w[-1]
         elif learning_type in ('adaptive_gradient_algorithm', 'adagrad', 'AdaGrad'):
             # 4
             result = 4
