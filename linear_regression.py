@@ -7,7 +7,7 @@ class LinearRegression():
     _regularizers = {'lasso': 'L1', 'ridge': 'L2', 'elasticnet': 'elasticnet', 'none': None}
     _metrics = ('mse', 'rmse', 'mae', 'r^2', 'adjusted_r^2', 'mape')
     _lr's = ('constant', 'decay')
-    _learning types = ('analytic' - ('classic', 'svd'), 'gd', 'sgd', 'sag', 'adagrad', 'adam', 'rmsprop')
+    _learning types = ('analytic' - ('classic', 'svd'), ...
     '''
     #===========================================================================
     def _lasso_func(self, w):
@@ -159,17 +159,19 @@ class LinearRegression():
 
         return w
 
-    def _compute_gradient(self, X, y):
-        y_pred = X @ self.w
+    def _compute_gradient(self, X, y, w=None):
+        if w is None:
+            w = self.w
+        y_pred = X @ w
         grad_loss = self.loss_func_derivative(y_pred, y, X)
-        grad_reg = self.regularizator_func_derivative(self.w)
+        grad_reg = self.regularizator_func_derivative(w)
         return grad_loss + grad_reg
 
     def _gradient_descent(self, X, y, n_steps, quality_limit, lr_, lr_type, decay_rate):
         X_with_bias = np.c_[X, np.ones(X.shape[0])] #add 1-column for bias
         self.w = np.random.randn(X_with_bias.shape[1]) if not hasattr(self, 'w') else self.w
 
-        Q_prev = np.inf
+        Q_prev = self.loss_func(X_with_bias @ self.w, y)
         for i in range(n_steps):
             lr = self._get_lr(lr_, lr_type, i, decay_rate)
             self.w = self.w - lr * self._compute_gradient(X_with_bias, y)
@@ -184,7 +186,7 @@ class LinearRegression():
         X_with_bias = np.c_[X, np.ones(X.shape[0])] #add 1-column for bias
         self.w = np.random.randn(X_with_bias.shape[1]) if not hasattr(self, 'w') else self.w
 
-        Q_prev = np.inf
+        Q_prev = self.loss_func(X_with_bias @ self.w, y)
         for i in range(n_steps):
             idx = np.random.choice(
                 np.arange(0, X_with_bias.shape[0]), batch_size, replace=False
@@ -218,8 +220,6 @@ class LinearRegression():
             object_X = X_with_bias[idx]
             object_y = y[idx]
 
-            y_pred = object_X @ self.w
-
             lr = self._get_lr(lr_, lr_type, i, decay_rate)
 
             for j in idx:
@@ -237,15 +237,184 @@ class LinearRegression():
             Q_prev = Q_current
         return self.w
 
+    def _momentum(self, X, y, n_steps, quality_limit, lr_, lr_type, decay_rate, gamma):
+        X_with_bias = np.c_[X, np.ones(X.shape[0])] #add 1-column for bias
+        self.w = np.random.randn(X_with_bias.shape[1]) if not hasattr(self, 'w') else self.w
+
+        velocity = np.zeros(X_with_bias.shape[1])
+
+        Q_prev = self.loss_func(X_with_bias @ self.w, y)
+        for i in range(n_steps):
+
+            lr = self._get_lr(lr_, lr_type, i, decay_rate)
+            velocity = gamma * velocity + lr * self._compute_gradient(X_with_bias, y)
+
+            self.w = self.w - velocity
+
+            y_prednew = X_with_bias @ self.w
+            Q_current = self.loss_func(y_prednew, y)
+            if quality_limit and abs(Q_prev - Q_current) < quality_limit:
+                break
+            Q_prev = Q_current
+        return self.w
+
+    def _nesterov_accelerated_gradient(self, X, y, n_steps, quality_limit, lr_, lr_type, decay_rate, gamma):
+        X_with_bias = np.c_[X, np.ones(X.shape[0])] #add 1-column for bias
+        self.w = np.random.randn(X_with_bias.shape[1]) if not hasattr(self, 'w') else self.w
+
+        velocity = np.zeros(X_with_bias.shape[1])
+
+        Q_prev = self.loss_func(X_with_bias @ self.w, y)
+        for i in range(n_steps):
+            lr = self._get_lr(lr_, lr_type, i, decay_rate)
+            w = self.w - gamma * velocity
+            velocity = gamma * velocity + lr * self._compute_gradient(X_with_bias, y, w)
+
+            self.w = self.w - velocity
+            y_prednew = X_with_bias @ self.w
+            Q_current = self.loss_func(y_prednew, y)
+            if quality_limit and abs(Q_prev - Q_current) < quality_limit:
+                break
+            Q_prev = Q_current
+        return self.w
+
+    def _root_mean_square_propagation(self, X, y, n_steps, quality_limit, lr_, lr_type, decay_rate, alpha, const):
+        X_with_bias = np.c_[X, np.ones(X.shape[0])] #add 1-column for bias
+        self.w = np.random.randn(X_with_bias.shape[1]) if not hasattr(self, 'w') else self.w
+
+        Q_prev = self.loss_func(X_with_bias @ self.w, y)
+        G = np.zeros(X_with_bias.shape[1])
+        for i in range(n_steps):
+            lr = self._get_lr(lr_, lr_type, i, decay_rate)
+            grad = self._compute_gradient(X_with_bias, y)
+            G = alpha * G + (1 - alpha) * (grad * grad)
+
+            self.w = self.w - lr * (grad / (np.sqrt(G) + const))
+            y_prednew = X_with_bias @ self.w
+            Q_current = self.loss_func(y_prednew, y)
+            if quality_limit and abs(Q_prev - Q_current) < quality_limit:
+                break
+            Q_prev = Q_current
+        return self.w
+
+    def _adaptive_learning_rate(self, X, y, n_steps, quality_limit, lr_, lr_type, decay_rate, alpha, const):
+        X_with_bias = np.c_[X, np.ones(X.shape[0])] #add 1-column for bias
+        self.w = np.random.randn(X_with_bias.shape[1]) if not hasattr(self, 'w') else self.w
+
+        Q_prev = self.loss_func(X_with_bias @ self.w, y)
+        G = np.zeros(X_with_bias.shape[1])
+        DELTA = np.zeros(X_with_bias.shape[1])
+        for i in range(n_steps):
+            lr = self._get_lr(lr_, lr_type, i, decay_rate)
+            grad = self._compute_gradient(X_with_bias, y)
+            G = alpha * G + (1 - alpha) * (grad * grad)
+            delta = grad * (
+                (np.sqrt(DELTA) + const) / (np.sqrt(G) + const)
+            )
+            DELTA = alpha * DELTA + (1 - alpha) * (delta * delta)
+
+            self.w = self.w - lr * delta
+            y_prednew = X_with_bias @ self.w
+            Q_current = self.loss_func(y_prednew, y)
+            if quality_limit and abs(Q_prev - Q_current) < quality_limit:
+                break
+            Q_prev = Q_current
+        return self.w
+
+    def _adaptive_momentum(self, X, y, n_steps, quality_limit, lr_, lr_type, decay_rate, gamma, alpha, const):
+        X_with_bias = np.c_[X, np.ones(X.shape[0])] #add 1-column for bias
+        self.w = np.random.randn(X_with_bias.shape[1]) if not hasattr(self, 'w') else self.w
+
+        velocity = np.zeros(X_with_bias.shape[1])
+        G = np.zeros(X_with_bias.shape[1])
+
+        Q_prev = self.loss_func(X_with_bias @ self.w, y)
+        for i in range(n_steps):
+
+            lr = self._get_lr(lr_, lr_type, i, decay_rate)
+            grad = self._compute_gradient(X_with_bias, y)
+
+            velocity = gamma * velocity + (1 - gamma) * grad
+            G = alpha * G + (1 - alpha) * (grad * grad)
+
+            velocity_normed = velocity / (1 - gamma ** (i + 1))
+            G_normed = G / (1 - alpha ** (i + 1))
+            
+            self.w = self.w - lr * (
+                velocity_normed / (np.sqrt(G_normed) + const)
+            )
+
+            y_prednew = X_with_bias @ self.w
+            Q_current = self.loss_func(y_prednew, y)
+            if quality_limit and abs(Q_prev - Q_current) < quality_limit:
+                break
+            Q_prev = Q_current
+        return self.w
+
+    def _nesterov_accelerated_adaptive_momentum(self, X, y, n_steps, quality_limit, lr_, lr_type, decay_rate, gamma, alpha, const):
+        X_with_bias = np.c_[X, np.ones(X.shape[0])] #add 1-column for bias
+        self.w = np.random.randn(X_with_bias.shape[1]) if not hasattr(self, 'w') else self.w
+
+        velocity = np.zeros(X_with_bias.shape[1])
+        G = np.zeros(X_with_bias.shape[1])
+
+        Q_prev = self.loss_func(X_with_bias @ self.w, y)
+        for i in range(n_steps):
+
+            lr = self._get_lr(lr_, lr_type, i, decay_rate)
+            grad = self._compute_gradient(X_with_bias, y)
+
+            velocity = gamma * velocity + (1 - gamma) * grad
+            G = alpha * G + (1 - alpha) * (grad * grad)
+
+            velocity_normed = velocity / (1 - gamma ** (i + 1))
+            G_normed = G / (1 - alpha ** (i + 1))
+            
+            self.w = self.w - lr * (
+                gamma * velocity_normed + ((1 - gamma)/(1 - gamma ** (i + 1))) * grad
+            ) * (1/(np.sqrt(G_normed) + const))
+
+            y_prednew = X_with_bias @ self.w
+            Q_current = self.loss_func(y_prednew, y)
+            if quality_limit and abs(Q_prev - Q_current) < quality_limit:
+                break
+            Q_prev = Q_current
+        return self.w
+
+    def _adaptive_gradient(self, X, y, n_steps, quality_limit, lr_, lr_type, decay_rate, const):
+        X_with_bias = np.c_[X, np.ones(X.shape[0])] #add 1-column for bias
+        self.w = np.random.randn(X_with_bias.shape[1]) if not hasattr(self, 'w') else self.w
+
+        r = np.zeros(X_with_bias.shape[1])
+        Q_prev = self.loss_func(X_with_bias @ self.w, y)
+        for i in range(n_steps):
+
+            lr = self._get_lr(lr_, lr_type, i, decay_rate)
+            grad = self._compute_gradient(X_with_bias, y)
+
+            r += grad ** 2
+            self.w = self.w - lr * (1/(np.sqrt(r) + const)) * grad
+
+            y_prednew = X_with_bias @ self.w
+            Q_current = self.loss_func(y_prednew, y)
+            if quality_limit and abs(Q_prev - Q_current) < quality_limit:
+                break
+            Q_prev = Q_current
+        return self.w
+
     def fit(self, X, y, 
-            learning_type, 
+            learning_type,
             ad_type = None, 
-            n_steps = None, 
-            lr = None, 
-            lr_type = None, 
+            n_steps = 2000, 
+            lr = 0.01, 
+            lr_type = 'constant', 
             quality_limit = None,
             decay_rate = None,
-            batch_size = 1):
+            batch_size = 1,
+            gamma = 0.9,
+            alpha = 0.999,
+            const=1e-8
+            ):
 
         if learning_type in ('analytic_solution', 'as', 'AS'):
             ad_type = 'classic' if ad_type is None else ad_type
@@ -269,12 +438,42 @@ class LinearRegression():
             self.w = self._stochastic_average_gradient(X, y, n_steps, quality_limit, lr, lr_type, decay_rate, batch_size)
             self.coefficients = self.w[:-1]
             self.bias = self.w[-1]
+        
+        elif learning_type in ('momentum', 'mm', 'MM'):
+            self.w = self._momentum(X, y, n_steps, quality_limit, lr, lr_type, decay_rate, gamma)
+            self.coefficients = self.w[:-1]
+            self.bias = self.w[-1]
+
+        elif learning_type in ('nesterov_accelerated_gradient', 'nag', 'NAG'):
+            self.w = self._nesterov_accelerated_gradient(X, y, n_steps, quality_limit, lr, lr_type, decay_rate, gamma)
+            self.coefficients = self.w[:-1]
+            self.bias = self.w[-1]
+        
+        elif learning_type in ('root_mean_square_propagation', 'rms', 'RMSProp'):
+            self.w = self._root_mean_square_propagation(X, y, n_steps, quality_limit, lr, lr_type, decay_rate, alpha, const)
+            self.coefficients = self.w[:-1]
+            self.bias = self.w[-1]
+
+        elif learning_type in ('adaptive_learning_rate', 'adadelta', 'AdaDelta'):
+            self.w = self._adaptive_learning_rate(X, y, n_steps, quality_limit, lr, lr_type, decay_rate, alpha, const)
+            self.coefficients = self.w[:-1]
+            self.bias = self.w[-1]
+
+        elif learning_type in ('adaptive_momentum', 'adam', 'Adam'):
+            self.w = self._adaptive_momentum(X, y, n_steps, quality_limit, lr, lr_type, decay_rate, gamma, alpha, const)
+            self.coefficients = self.w[:-1]
+            self.bias = self.w[-1]
+        
+        elif learning_type in ('nesterov_accelerated_adaptive_momentum', 'nadam', 'Nadam'):
+            self.w = self._nesterov_accelerated_adaptive_momentum(X, y, n_steps, quality_limit, lr, lr_type, decay_rate, gamma, alpha, const)
+            self.coefficients = self.w[:-1]
+            self.bias = self.w[-1]
+        
         elif learning_type in ('adaptive_gradient_algorithm', 'adagrad', 'AdaGrad'):
-            # 4
-            result = 4
-        elif learning_type in ('adaptive_moment_estimation', 'adam', 'Adam'):
-            # 5
-            result = 5
+            self.w = self._adaptive_gradient(X, y, n_steps, quality_limit, lr, lr_type, decay_rate, const)
+            self.coefficients = self.w[:-1]
+            self.bias = self.w[-1]
+
         else:
             raise Exception('ERROR: Wrong choice of model learning type.')
         return self

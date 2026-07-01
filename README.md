@@ -7,7 +7,7 @@
 ## 📦 Planned Features
 
 ### Models
-- Linear Regression
+- ~~Linear Regression~~
 - Linear Classification
 - Logistic Regression
 - SVM
@@ -23,23 +23,23 @@
 - Gradient Boosting Regression
 - Gradient Boosting Classification
 - Neural Networks
-
-### Optimizers (Gradient Descent)
-- Classic GD
-- SGD (Stochastic Gradient Descent)
-- SAG (Stochastic Average Gradient)
-- momentum
-- NAG – Nesterov’s accelerated gradient
-- AdaDelta (adaptive learning rate)
-- AdaGrad
-- Adam
-- Nadam (Nesterov-accelerated adaptive momentum)
-- RMSprop
 - The Levenberg-Marquardt Diagonal Method
 
+### Linear Optimizers (Gradient Descent)
+- ~~Classic GD~~
+- ~~SGD (Stochastic Gradient Descent)~~
+- ~~SAG (Stochastic Average Gradient)~~
+- ~~momentum~~
+- ~~NAG – Nesterov’s accelerated gradient~~
+- ~~AdaDelta (adaptive learning rate)~~
+- ~~AdaGrad~~
+- ~~Adam~~
+- ~~Nadam~~
+- ~~RMSprop~~
+
 ### Analytical Solvers
-- Classic (Normal Equation)
-- SVD
+- ~~Classic (Normal Equation)~~
+- ~~SVD~~
 
 ---
 
