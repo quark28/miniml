@@ -121,10 +121,6 @@ class LinearRegression():
         else:
             self.regularizator_func = self._none_func
             self.regularizator_func_derivative = self._none_func_derivative
-        
-        self.w = None
-        self.coefficients = None
-        self.bias = None
 
     def _analytic_solution(self, X, y, ad_type):
 
@@ -279,7 +275,5 @@ class LinearRegression():
         return self
     
     def predict(self, X):
-        if self.w is None:
-            raise ValueError('Model not fitted yet')
         X_with_bias = np.c_[X, np.ones(X.shape[0])]
         return X_with_bias @ self.w
