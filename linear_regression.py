@@ -207,7 +207,7 @@ class LinearRegression():
         grads = np.empty(X_with_bias.shape)
         for idx in range(X_with_bias.shape[0]):
             grads[idx] = self._compute_gradient(X_with_bias[idx:idx+1], y[idx:idx+1])
-        avg_grad = np.mean(grads)
+        avg_grad = np.mean(grads, axis=0)
 
         y_pred = X_with_bias @ self.w
         Q_prev = self.loss_func(y_pred, y)
@@ -222,8 +222,13 @@ class LinearRegression():
 
             lr = self._get_lr(lr_, lr_type, i, decay_rate)
 
-            new_grads = self._compute_gradient(object_X, object_y)
-            avg_grad += (new_grads - grads[idx]) / X_with_bias.shape[0]
+            for j in idx:
+                X_j = X_with_bias[j:j+1]
+                y_j = y[j:j+1]
+                new_grad = self._compute_gradient(X_j, y_j)
+                avg_grad += (new_grad - grads[j]) / X_with_bias.shape[0]
+                grads[j] = new_grad
+
             self.w = self.w - lr * avg_grad
             y_prednew = object_X @ self.w
             Q_current = self.loss_func(y_prednew, object_y)
