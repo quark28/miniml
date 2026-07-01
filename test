@@ -1,0 +1,19 @@
+import numpy as np
+from linear_regression import LinearRegression
+
+# Генерация данных
+np.random.seed(42)
+X = np.random.randn(100, 3)
+y = X @ np.array([2, -1, 0.5]) + 3 + np.random.randn(100) * 0.1
+
+# Обучение
+model = LinearRegression(loss='mse', regularizator='ridge', alpha=0.1)
+model.fit(X, y, learning_type='gd', n_steps=500, lr=0.1, lr_type='constant')
+
+# Предсказание
+y_pred = model.predict(X)
+mse = np.mean((y - y_pred) ** 2)
+
+print(f"Коэффициенты: {model.coefficients}")
+print(f"Bias: {model.bias:.4f}")
+print(f"MSE: {mse:.6f}")
