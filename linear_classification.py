@@ -12,18 +12,18 @@ class LinearClassification():
         return np.mean(np.maximum(0, 1 - y_true * y_pred))
     @staticmethod
     def _hinge_loss_func_derivative(y_pred, y_true, X):
-        dL_dM = np.where(y_true * y_pred < 1, -1, 0)
+        dL_dM = np.where(y_true * y_pred[:, None] < 1, -1, 0)
         dM_dw = X * y_true
-        return (dL_dM * dM_dw).sum(axis=0) / X.shape[0]
+        return (dL_dM[:, None] * dM_dw).sum(axis=0) / X.shape[0]
 
     @staticmethod
     def _hebb_rule_loss_func(y_pred, y_true): #2
         return np.mean(np.maximum(0, -(y_true * y_pred)))
     @staticmethod
     def _hebb_rule_loss_func_derivative(y_pred, y_true, X):
-        dL_dM = np.where(y_true * y_pred < 0, -1, 0)
+        dL_dM = np.where(y_true * y_pred[:, None] < 0, -1, 0)
         dM_dw = X * y_true
-        return (dL_dM * dM_dw).sum(axis=0) / X.shape[0]
+        return (dL_dM[:, None] * dM_dw).sum(axis=0) / X.shape[0]
 
     @staticmethod
     def _logloss_loss_func(y_pred, y_true): #3
@@ -32,8 +32,8 @@ class LinearClassification():
     def _logloss_loss_func_derivative(y_pred, y_true, X):
         M = y_pred * y_true
         dL_dM = (1 / ((1 + np.exp(-M)) * np.log(2))) * np.exp(-M) * (-1)
-        dM_dw = X * y_true
-        return (dL_dM * dM_dw).sum(axis=0) / X.shape[0]
+        dM_dw = X * y_true[:, None]
+        return (dL_dM[:, None] * dM_dw).sum(axis=0) / X.shape[0]
 
     @staticmethod
     def _fld_loss_func(y_pred, y_true): #4
@@ -42,8 +42,8 @@ class LinearClassification():
     def _fld_loss_func_derivative(y_pred, y_true, X):
         M = y_pred * y_true
         dL_dM = 2 * (1 - M) * (-1)
-        dM_dw = X * y_true
-        return (dL_dM * dM_dw).sum(axis=0) / X.shape[0]
+        dM_dw = X * y_true[:, None]
+        return (dL_dM[:, None] * dM_dw).sum(axis=0) / X.shape[0]
 
     @staticmethod
     def _ann_loss_func(y_pred, y_true): #5
@@ -52,8 +52,8 @@ class LinearClassification():
     def _ann_loss_func_derivative(y_pred, y_true, X):
         M = y_pred * y_true
         dL_dM = -2 * ((1 + np.exp(M))**-2) * np.exp(M)
-        dM_dw = X * y_true
-        return (dL_dM * dM_dw).sum(axis=0) / X.shape[0]
+        dM_dw = X * y_true[:, None]
+        return (dL_dM[:, None] * dM_dw).sum(axis=0) / X.shape[0]
 
     @staticmethod
     def _adaboost_loss_func(y_pred, y_true): #6
@@ -62,8 +62,8 @@ class LinearClassification():
     def _adaboost_loss_func_derivative(y_pred, y_true, X):
         M = y_pred * y_true
         dL_dM = np.exp(-M)
-        dM_dw = -1 * X * y_true
-        return (dL_dM * dM_dw).sum(axis=0) / X.shape[0]
+        dM_dw = -1 * X * y_true[:, None]
+        return (dL_dM[:, None] * dM_dw).sum(axis=0) / X.shape[0]
     #===========================================================================
     def _lasso_func(self, w):
         result = self.alpha * np.abs(w).sum()
