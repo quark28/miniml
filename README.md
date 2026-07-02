@@ -8,7 +8,7 @@
 
 ### Models
 - ~~Linear Regression~~
-- Linear Classification
+- ~~Linear Classification~~
 - Logistic Regression
 - SVM
 - PCA

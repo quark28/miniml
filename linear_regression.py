@@ -5,11 +5,10 @@ class LinearRegression():
     '''
     _losses = ('mse', 'mae', 'huber', 'log-cosh')
     _regularizers = {'lasso': 'L1', 'ridge': 'L2', 'elasticnet': 'elasticnet', 'none': None}
-    _metrics = ('mse', 'rmse', 'mae', 'r^2', 'adjusted_r^2', 'mape')
     _lr's = ('constant', 'decay')
     _learning types = ('analytic' - ('classic', 'svd'), ...
     '''
-    #===========================================================================
+
     def _lasso_func(self, w):
         result = self.alpha * np.abs(w).sum()
         return result
