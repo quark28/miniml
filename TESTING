@@ -1,0 +1,3 @@
+import numpy as np
+b = np.nan
+print(b is np.nan)
