@@ -12,8 +12,8 @@ class LinearClassification():
         return np.mean(np.maximum(0, 1 - y_true * y_pred))
     @staticmethod
     def _hinge_loss_func_derivative(y_pred, y_true, X):
-        dL_dM = np.where(y_true * y_pred[:, None] < 1, -1, 0)
-        dM_dw = X * y_true
+        dL_dM = np.where(y_true * y_pred < 1, -1, 0)
+        dM_dw = X * y_true[:, None] 
         return (dL_dM[:, None] * dM_dw).sum(axis=0) / X.shape[0]
 
     @staticmethod
@@ -21,8 +21,8 @@ class LinearClassification():
         return np.mean(np.maximum(0, -(y_true * y_pred)))
     @staticmethod
     def _hebb_rule_loss_func_derivative(y_pred, y_true, X):
-        dL_dM = np.where(y_true * y_pred[:, None] < 0, -1, 0)
-        dM_dw = X * y_true
+        dL_dM = np.where(y_true * y_pred < 0, -1, 0)
+        dM_dw = X * y_true[:, None]
         return (dL_dM[:, None] * dM_dw).sum(axis=0) / X.shape[0]
 
     @staticmethod
