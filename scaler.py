@@ -75,4 +75,4 @@ class Scaler:
 
     def fit_transform(self, X, type='min_max', axis=0, use_fit_stats=True):
         self.fit(X, type, axis)
-        return self.transform(X, type, axis, use_fit_stats)
+        return self.transform(X, axis, use_fit_stats)
