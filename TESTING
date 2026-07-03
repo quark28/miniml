@@ -1,14 +1,3 @@
 import numpy as np
-from linear_classification import LinearClassification
-from classification_metrics import accuracy
-
-# Синтетические данные
-X = np.random.randn(100, 2)
-y = np.sign(X @ np.array([1.0, -1.0]) + 0.1 * np.random.randn(100))
-
-# Тест с GD
-model = LinearClassification(loss='hinge')
-model.fit(X, y, learning_type='gd', n_steps=500, lr=0.05)
-y_pred = model.predict(X)
-acc = accuracy(y, y_pred)
-print(f"Accuracy: {acc:.4f}")  # должно быть > 0.9
+a = [1, 2, 3, 4]
+print(a.count())

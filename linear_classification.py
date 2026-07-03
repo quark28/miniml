@@ -1,5 +1,6 @@
 import numpy as np
 
+
 class LinearClassification():
     '''
     _losses = ('hinge', 'hebb', 'logloss', 'fld', 'ann', 'adaboost')

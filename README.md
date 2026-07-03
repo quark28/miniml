@@ -15,7 +15,7 @@
 - KNN Regression
 - KNN Classification
 - K-means
-- DBSCAN
+- ~~DBSCAN~~
 - Decision Tree Regression
 - Decision Tree Classification
 - Random Forest Regression
