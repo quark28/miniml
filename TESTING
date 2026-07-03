@@ -6,8 +6,4 @@ X = np.array(
         [9, 10, 11, 12]
         ]
 )
-print(X.shape)
-_ans = np.empty(X.shape)
-for j in range(X.shape[1]):
-    _ans[:, j] = X[:, j]
-print(_ans)
+print(np.mean(X, axis=0))

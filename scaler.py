@@ -3,39 +3,76 @@ import numpy as np
 
 class Scaler:
     
-    @staticmethod
-    def _min_max_scaling(x):
-        mi = np.min(x)
-        ma = np.max(x)
-        return (x - mi) / (ma - mi if ma - mi != 0 else 1e-8)
+    def _min_max_scaling(self, X, use_fit_stats, axis):
+        if use_fit_stats:
+            minimum, maximum, denominator = self.params['minimum'], self.params['maximum'], self.params['denominator']
+        else:
+            minimum = np.min(X, axis, keepdims=True)
+            maximum = np.max(X, axis, keepdims=True)
+            denominator = (maximum - minimum)
+            denominator = np.where(denominator == 0, 1, denominator)
+            self.params = {'minimum': minimum, 'maximum': maximum, 'denominator': denominator}
+        
+        return (X - minimum) / denominator
     
-    @staticmethod
-    def _z_score_normalization(x):
-        return (x - np.mean(x)) / (np.std(x) if np.std(x) != 0 else 1e-8)
+    def _z_norm_normalization(self, X, use_fit_stats, axis):
+        if use_fit_stats:
+            mean, std = self.params['mean'], self.params['std']
+        else:
+            mean = np.mean(X, axis, keepdims=True)
+            std = np.std(X, axis, keepdims=True)
+            std = np.where(std == 0, 1, std)
+            self.params = {'mean': mean, 'std': std}
+        
+        return (X - mean) / std
     
-    @staticmethod
-    def _normalization(x):
-        return x / (np.linalg.norm(x) if np.linalg.norm(x) != 0 else 1e-8)
+    def _normalization(self, X, use_fit_stats, axis):
+        if use_fit_stats:
+            norm = self.params['norm']
+        else:
+            norm = np.linalg.norm(X, axis, keepdims=True) 
+            norm = np.where(norm == 0, 1, norm)
+            self.params = {'norm': norm}
+        
+        return X / norm
     
-    @staticmethod
-    def _robust_scaling(x):
-        return (x - np.median(x)) / ( (np.percentile(x, 75) - np.percentile(x, 25))
-                                     if (np.percentile(x, 75) - np.percentile(x, 25)) != 0
-                                     else 1e-8)
+    def _robust_scaling(self, X, use_fit_stats, axis):
+        if use_fit_stats:
+            median = self.params['median']
+            iqr = self.params['iqr']
+        else:
+            median = np.median(X, axis, keepdims=True)
+            percentile25 = np.percentile(X, 25, axis, keepdims=True)
+            percentile75 = np.percentile(X, 75, axis, keepdims=True)
+            iqr = percentile75 - percentile25
+            iqr = np.where(iqr == 0, 1, iqr)
 
-    def __init__(self, type='min_max'):
+            self.params = {'median': median, 'percentile25': percentile25, 'percentile75': percentile75, 'iqr': iqr}
 
-        if type == 'min_max':
-            self.skrt = self._min_max_scaling
-        elif type == 'z_norm':
-            self.skrt = self._z_score_normalization
-        elif type == 'norm':
-            self.skrt = self._normalization
-        elif type == 'robust':
-            self.skrt = self._robust_scaling
+        return (X - median) / iqr
 
-    def fit_predict(self, X):
-        _scaled_matrix = np.empty(X.shape)
-        for feature_vector_num in range(X.shape[1]):
-            _scaled_matrix[:, feature_vector_num] = self.skrt(X[:, feature_vector_num])
-        return _scaled_matrix 
+    def _get_method(self, func_name):
+        functions = {
+            'min_max': self._min_max_scaling,
+            'z_norm': self._z_norm_normalization,
+            'norm': self._normalization,
+            'robust': self._robust_scaling
+        }
+        return functions[func_name]
+
+    def __init__(self):
+        pass
+
+    def fit(self, X, type='min_max', axis=0):
+
+        self.method = self._get_method(type)
+        self.method(X, False, axis)
+
+        return self
+
+    def transform(self, X, type='min_max', axis=0, use_fit_stats=True):
+        return self.method(X, use_fit_stats, axis)
+
+    def fit_transform(self, X, type='min_max', axis=0, use_fit_stats=True):
+        self.fit(X, type, axis)
+        return self.transform(X, type, axis, use_fit_stats)
