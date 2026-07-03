@@ -30,7 +30,7 @@ class Scaler:
         if use_fit_stats:
             norm = self.params['norm']
         else:
-            norm = np.linalg.norm(X, ord=2, axis, keepdims=True) 
+            norm = np.linalg.norm(X, ord=2, axis=axis, keepdims=True) 
             norm = np.where(norm == 0, 1, norm)
             self.params = {'norm': norm}
         
