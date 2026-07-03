@@ -9,6 +9,7 @@
 ### Models
 - ~~Linear Regression~~
 - ~~Linear Classification~~
+- ~~Scaler~~
 - Logistic Regression
 - SVM
 - PCA
@@ -22,9 +23,8 @@
 - Random Forest Classification
 - Gradient Boosting Regression
 - Gradient Boosting Classification
-- Neural Networks
+- Neural Networks module
 - The Levenberg-Marquardt Diagonal Method
-
 ### Linear Optimizers (Gradient Descent)
 - ~~Classic GD~~
 - ~~SGD (Stochastic Gradient Descent)~~

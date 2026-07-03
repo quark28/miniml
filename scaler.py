@@ -70,7 +70,7 @@ class Scaler:
 
         return self
 
-    def transform(self, X, type='min_max', axis=0, use_fit_stats=True):
+    def transform(self, X, axis=0, use_fit_stats=True):
         return self.method(X, use_fit_stats, axis)
 
     def fit_transform(self, X, type='min_max', axis=0, use_fit_stats=True):
