@@ -12,6 +12,7 @@
 - ~~Scaler~~
 - Logistic Regression
 - SVM
+- ~~NBGaussianClassifier~~
 - PCA
 - KNN Regression
 - KNN Classification
