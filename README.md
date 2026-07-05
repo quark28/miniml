@@ -24,8 +24,11 @@
 - Random Forest Classification
 - Gradient Boosting Regression
 - Gradient Boosting Classification
-- Neural Networks module
+
+### Future
+- Naive bayes: Bernoulli, Multinomial
 - The Levenberg-Marquardt Diagonal Method
+- Neural Networks module
 ### Linear Optimizers (Gradient Descent)
 - ~~Classic GD~~
 - ~~SGD (Stochastic Gradient Descent)~~
