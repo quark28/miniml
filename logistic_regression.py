@@ -36,10 +36,12 @@ class LogisticRegression:
     # no classic loss version (production) because of derivative difficulty
     @staticmethod
     def _logloss_loss_func(probs, y_true):
+        eps = 1e-9
+        probs = np.clip(probs, eps, 1 - eps)
         return -(y_true * np.log(probs) + (1 - y_true) * np.log((1 - probs))).sum()
     @staticmethod
     def _logloss_loss_func_derivative(probs, y_true, X):
-        return ((probs - y_true) * X).sum(axis=0)
+        return ((probs - y_true)[:, None] * X).sum(axis=0)
 
     #===========================================================================
     def __init__(self, classic_loss = False, regularizator = None, delta = None, alpha = None):
