@@ -387,7 +387,7 @@ class LogisticRegression:
     def predict_proba(self, X):
         X_with_bias = np.c_[X, np.ones(X.shape[0])]
         return self._sigmoid(X_with_bias, self.w)
-    
+        
     def predict(self, X, treshold=0.5):
         probabilities = self.predict_proba(X)
 
