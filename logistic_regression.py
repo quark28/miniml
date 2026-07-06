@@ -393,18 +393,3 @@ class LogisticRegression:
         if self._orig_classes <= {-1, 1}:
             ans = np.where(ans == 0, -1, 1)
         return ans
-
-a = np.array(
-    [
-        [1, 2, 3],
-        [10, 100, 0],
-        [2, 20, 12]
-    ]
-)
-
-b = np.array(
-    [
-        [1, 0, 1]
-    ]
-)
-

@@ -10,7 +10,7 @@
 - ~~Linear Regression~~
 - ~~Linear Classification~~
 - ~~Scaler~~
-- Logistic Regression
+- ~~Logistic Regression~~
 - SVM
 - ~~NBGaussianClassifier~~
 - PCA
