@@ -392,6 +392,6 @@ class LogisticRegression:
         probabilities = self.predict_proba(X)
 
         ans = np.where(probabilities >= treshold, 1, 0)
-        if self._orig_classes <= {-1, 1}:
+        if hasattr(self, '_orig_classes') and self._orig_classes <= {-1, 1}:
             ans = np.where(ans == 0, -1, 1)
         return ans
