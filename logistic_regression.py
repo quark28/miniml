@@ -44,7 +44,7 @@ class LogisticRegression:
         return ((probs - y_true)[:, None] * X).sum(axis=0)
 
     #===========================================================================
-    def __init__(self, classic_loss = False, regularizator = None, delta = None, alpha = None):
+    def __init__(self, regularizator = None, alpha = None):
         self.alpha = alpha
         
         if regularizator == 'elasticnet':
@@ -56,7 +56,6 @@ class LogisticRegression:
                 raise Exception("elasticnet requires alpha=(alpha_l1, alpha_l2)")
 
         self.regularizator = regularizator
-        self.delta = delta # huber
 
         self.loss_func = self._logloss_loss_func
         self.loss_func_derivative = self._logloss_loss_func_derivative
