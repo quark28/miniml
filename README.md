@@ -45,7 +45,7 @@ miniml/
 - ~~SVM: linear~~
 - ~~NBGaussianClassifier~~
 - PCA
-- KNN Regression
+- ~~KNN Regression~~
 - ~~KNN Classification~~
 - K-means
 - ~~DBSCAN~~
