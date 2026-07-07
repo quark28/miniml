@@ -12,11 +12,9 @@ class SVM(LinearClassification):
         dM_dw = X * y_true[:, None] 
         return (dL_dM[:, None] * dM_dw).sum(axis=0) / X.shape[0]
     
-    @staticmethod
     def _ridge_func(self, w):
         result = 1/(2 * self.C) * (w ** 2).sum()
         return result
-    @staticmethod
     def _ridge_func_derivative(self, w):
         result =  2 * 1/(2 * self.C) * w
         result[-1] = 0 # do not regularize bias
