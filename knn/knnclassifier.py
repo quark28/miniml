@@ -29,15 +29,15 @@ class KNNClassifier:
         self.K = neighbours
 
         if metric == 'euclid':
-            self.metric = self._euclid
+            self.metric = KNNClassifier._euclid
         elif metric == 'manhattan':
-            self.metric = self._manhattan
+            self.metric = KNNClassifier._manhattan
         elif metric == 'minkowski':
-            self.metric = self._minkowski_maker(p)
+            self.metric = KNNClassifier._minkowski_maker(p)
         elif metric == 'cosine':
-            self.metric = self._cosine
+            self.metric = KNNClassifier._cosine
         elif metric == 'jacquard':
-            self.metric = self._jacquard
+            self.metric = KNNClassifier._jacquard
 
         if weights:
             if weights == 'linear':
