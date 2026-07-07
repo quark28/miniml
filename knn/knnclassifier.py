@@ -3,12 +3,21 @@ import numpy as np
 
 class KNNClassifier:
 
-    def linear_weights(self, i):
-        return (self.K + 1 - i) / self.K
-    def exponential_weights(self, i):
-        return self.q_for_exp_w ** i
-    def dummy_weights(self, i):
-        return 0
+    @staticmethod
+    def kernel_rectangular(x):
+        return 1/2 * (x <= 1)
+    @staticmethod
+    def kernel_triangular(x):
+        return (1 - np.abs(x)) * (x <= 1)
+    @staticmethod
+    def kernel_quartic(x):
+        return 15/16 * ( (1 - x**2)**2 ) * (x <= 1)
+    @staticmethod
+    def kernel_epanechnikov(x):
+        return 3/4 * (1 - x**2) * (x <= 1)
+    @staticmethod
+    def kernel_gaussian(x):
+        return 1/np.sqrt(2 * np.pi) * np.exp( -(x ** 2)/2 )
     
     _euclid = lambda a, b: np.sqrt( ( (a - b) ** 2 ).sum(axis=1) )
     _manhattan = lambda a, b: np.abs( (a - b) ).sum(axis=1)
@@ -24,9 +33,14 @@ class KNNClassifier:
 )
     _jacquard = lambda a, b: np.array([1 - len(np.intersect1d(a[0], row)) / len(np.union1d(a[0], row)) for row in b])
 
-    def __init__(self, neighbours=5, metric='euclid', p=None, weights=None, q=None, kernel=None):
-        # weights OR kernel
+    def __init__(self, neighbours=5, metric='euclid', p=None, weight_type='uniform', q=None, h=1):
         self.K = neighbours
+        self.metric_name = metric
+        self.weight_type = weight_type  # 'uniform', 'rank_linear', 'rank_exp', 'kernel_rectangular', 
+                                        # 'kernel_triangular', 'kernel_quartic', 'kernel_epanechnikov',
+                                        # 'kernel_gaussian'
+        self.q = q
+        self.h = h
 
         if metric == 'euclid':
             self.metric = KNNClassifier._euclid
@@ -38,29 +52,6 @@ class KNNClassifier:
             self.metric = KNNClassifier._cosine
         elif metric == 'jacquard':
             self.metric = KNNClassifier._jacquard
-
-        if weights:
-            if weights == 'linear':
-                self.w = self.linear_weights
-            elif weights == 'exp':
-                self.q_for_exp_w = q
-                self.w = self.exponential_weights
-        else:
-            self.w = self.dummy_weights
-
-        if kernel:
-            if kernel == 'rectangular':
-                self.kernel = lambda x: 1/2 * (x <= 1)
-            elif kernel == 'triangular':
-                self.kernel = lambda x: (1 - np.abs(x)) * (x <= 1)
-            elif kernel in ('quartic', 'biquadrate'):
-                self.kernel = lambda x: 15/16 * ( (1 - x**2)**2 ) * (x <= 1)
-            elif kernel == 'epanechnikov':
-                self.kernel = lambda x: 3/4 * (1 - x**2) * (x <= 1)
-            elif kernel == 'gaussian':
-                self.kernel = lambda x: 1/np.sqrt(2 * np.pi) * np.exp( -(x ** 2)/2 )
-        else:
-            self.kernel = lambda x: 0
     
     def fit(self, X, y):
         self.X_data = X
@@ -82,7 +73,30 @@ class KNNClassifier:
             classes = {}
             for id in range(K_actual):
                 yt = self.y_data[idx_k][id]
-                classes[yt] = classes.get(yt, 0) + self.w(id) + self.kernel(kneighbours[id]/h)
+                
+                if self.weight_type == 'uniform':
+                    vote = 1
+                elif self.weight_type == 'rank_linear':
+                    vote = (self.K + 1 - (id + 1)) / self.K # id + 1, rank = 1, ...
+                elif self.weight_type == 'rank_exp':
+                    vote = self.q ** (id + 1) # id + 1, rank = 1, ...
+                else:
+                    dist_val = kneighbours[id]
+
+                    if self.weight_type == 'kernel_rectangular':
+                        vote = self.kernel_rectangular(dist_val / self.h)
+                    elif self.weight_type == 'kernel_triangular':
+                        vote = self.kernel_triangular(dist_val / self.h)
+                    elif self.weight_type == 'kernel_quartic':
+                        vote = self.kernel_quartic(dist_val / self.h)
+                    elif self.weight_type == 'kernel_epanechnikov':
+                        vote = self.kernel_epanechnikov(dist_val / self.h)
+                    elif self.weight_type == 'kernel_gaussian':
+                        vote = self.kernel_gaussian(dist_val / self.h)
+                    else:
+                        vote = 1
+                    
+                classes[yt] = classes.get(yt, 0) + vote
             
             _ans[i] = max(classes, key=classes.get)
         return _ans
