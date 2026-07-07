@@ -6,12 +6,12 @@
 
 ## 📦 Planned Features
 
-### Models
+### Models and features
 - ~~Linear Regression~~
 - ~~Linear Classification~~
 - ~~Scaler~~
 - ~~Logistic Regression~~
-- SVM
+- ~~SVM: linear~~
 - ~~NBGaussianClassifier~~
 - PCA
 - KNN Regression
@@ -24,12 +24,18 @@
 - Random Forest Classification
 - Gradient Boosting Regression
 - Gradient Boosting Classification
+- Boostrap
+- A/B Testing
+- Naive bayes: Bernoulli, Multinomial
+- Neural Networks module
 
 ### Future
-- Naive bayes: Bernoulli, Multinomial
+- Gaussian Bayesian classifier
 - The Levenberg-Marquardt Diagonal Method
-- Neural Networks module
-### Linear Optimizers (Gradient Descent)
+- Fisher's linear discriminant
+- Agglomerative hierarchical clustering
+- SVM kernels: poly, rbf, tanh
+### Linear Optimizers (Gradient Descents)
 - ~~Classic GD~~
 - ~~SGD (Stochastic Gradient Descent)~~
 - ~~SAG (Stochastic Average Gradient)~~
