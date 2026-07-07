@@ -1,7 +1,7 @@
 import numpy as np 
 
 
-class KNNClassification:
+class KNNRegression:
 
     @staticmethod
     def kernel_rectangular(x):
@@ -28,12 +28,11 @@ class KNNClassification:
             return ((np.abs( (a - b) ) ** p).sum(axis=1)) ** (1 / p)
         return _minkowski
 
-    _cosine = lambda a, b: 1 - (
-    (a * b).sum(axis=1) / (np.linalg.norm(a, axis=1) * np.linalg.norm(b, axis=1))
-)
+    _cosine = lambda a, b: 1 - ( (a * b).sum(axis=1) / (np.linalg.norm(a, axis=1) * np.linalg.norm(b, axis=1)) )
+
     _jacquard = lambda a, b: np.array([1 - len(np.intersect1d(a[0], row)) / len(np.union1d(a[0], row)) for row in b])
 
-    def __init__(self, neighbours=5, metric='euclid', p=None, weight_type='uniform', q=None, h=1):
+    def __init__(self, neighbours=5, metric='euclid', p=None, weight_type='uniform', q=None, h=1, regression_type='classic'):
         self.K = neighbours
         self.metric_name = metric
         self.weight_type = weight_type  # 'uniform', 'rank_linear', 'rank_exp', 'kernel_rectangular', 
@@ -41,17 +40,18 @@ class KNNClassification:
                                         # 'kernel_gaussian'
         self.q = q
         self.h = h
+        self.rg = regression_type # 'classic' or 'nadaraya_watson'
 
         if metric == 'euclid':
-            self.metric = KNNClassification._euclid
+            self.metric = KNNRegression._euclid
         elif metric == 'manhattan':
-            self.metric = KNNClassification._manhattan
+            self.metric = KNNRegression._manhattan
         elif metric == 'minkowski':
-            self.metric = KNNClassification._minkowski_maker(p)
+            self.metric = KNNRegression._minkowski_maker(p)
         elif metric == 'cosine':
-            self.metric = KNNClassification._cosine
+            self.metric = KNNRegression._cosine
         elif metric == 'jacquard':
-            self.metric = KNNClassification._jacquard
+            self.metric = KNNRegression._jacquard
     
     def fit(self, X, y):
         self.X_data = X
@@ -70,10 +70,12 @@ class KNNClassification:
 
             kneighbours = dist[idx_k]
             
-            classes = {}
+            numerator = np.zeros(K_actual)
+            denominator = np.zeros(K_actual)
             for id in range(K_actual):
                 yt = self.y_data[idx_k][id]
-                
+                dist_val = kneighbours[id]
+
                 if self.weight_type == 'uniform':
                     vote = 1
                 elif self.weight_type == 'rank_linear':
@@ -81,7 +83,6 @@ class KNNClassification:
                 elif self.weight_type == 'rank_exp':
                     vote = self.q ** (id + 1) # id + 1, rank = 1, ...
                 else:
-                    dist_val = kneighbours[id]
 
                     if self.weight_type == 'kernel_rectangular':
                         vote = self.kernel_rectangular(dist_val / self.h)
@@ -95,9 +96,13 @@ class KNNClassification:
                         vote = self.kernel_gaussian(dist_val / self.h)
                     else:
                         vote = 1
-                    
-                classes[yt] = classes.get(yt, 0) + vote
+                if self.rg == 'classic':
+                    numerator[id] = yt
+                    denominator[id] = 1
+                else:
+                    numerator[id] = vote * yt
+                    denominator[id] = vote
             
-            _ans[i] = max(classes, key=classes.get)
+            _ans[i] = numerator.sum()/denominator.sum()
         return _ans
 

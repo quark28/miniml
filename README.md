@@ -46,7 +46,7 @@ miniml/
 - ~~NBGaussianClassifier~~
 - PCA
 - KNN Regression
-- KNN Classification
+- ~~KNN Classification~~
 - K-means
 - ~~DBSCAN~~
 - Decision Tree Regression
@@ -67,6 +67,8 @@ miniml/
 - Agglomerative hierarchical clustering
 - SVM kernels: poly, rbf, tanh
 - GD's as multi-model tools
+- Optimization
+
 ### Linear Optimizers (Gradient Descents)
 - ~~Classic GD~~
 - ~~SGD (Stochastic Gradient Descent)~~
