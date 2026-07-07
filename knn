@@ -8,7 +8,7 @@ class KNNClassifier:
     def exponential_weights(self, i):
         return self.q_for_exp_w ** i
     def dummy_weights(self, i):
-        return 1
+        return 0
     
     _euclid = lambda a, b: np.sqrt( ( (a - b) ** 2 ).sum(axis=1) )
     _manhattan = lambda a, b: np.abs( (a - b) ).sum(axis=1)
@@ -60,7 +60,7 @@ class KNNClassifier:
             elif kernel == 'gaussian':
                 self.kernel = lambda x: 1/np.sqrt(2 * np.pi) * np.exp( -(x ** 2)/2 )
         else:
-            self.kernel = lambda x: 1
+            self.kernel = lambda x: 0
     
     def fit(self, X, y):
         self.X_data = X
