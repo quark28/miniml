@@ -16,7 +16,7 @@ class SVM(LinearClassification):
         result = 1/(2 * self.C) * (w ** 2).sum()
         return result
     def _ridge_func_derivative(self, w):
-        result =  2 * 1/(2 * self.C) * w
+        result =  1/self.C * w
         result[-1] = 0 # do not regularize bias
         return result
     #===========================================================================
