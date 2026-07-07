@@ -3,6 +3,37 @@
 **Lightweight ML library from scratch. NumPy only.**
 
 ---
+## 📁 Structure
+miniml/
+├── linear/
+│ ├── init.py
+│ ├── linear_regression.py
+│ ├── linear_classification.py
+│ └── logistic_regression.py
+│ └── svm.py
+│
+├── cluster/
+│ ├── init.py
+│ └── dbscan.py
+│
+├── probability/
+│ ├── init.py
+│ └── naive_bayes.py
+│
+├── tools/
+│ ├── init.py
+│ └── scaler.py
+│
+├── metrics/
+│ ├── init.py
+│ ├── classification_metrics.py
+│ └── regression_metrics.py
+│
+├── tests/
+├── init.py
+├── requirements.txt
+├── README.md
+└── .gitignore
 
 ## 📦 Planned Features
 
@@ -35,6 +66,7 @@
 - Fisher's linear discriminant
 - Agglomerative hierarchical clustering
 - SVM kernels: poly, rbf, tanh
+- GD's as multi-model tools
 ### Linear Optimizers (Gradient Descents)
 - ~~Classic GD~~
 - ~~SGD (Stochastic Gradient Descent)~~

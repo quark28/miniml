@@ -1,5 +1,5 @@
 import numpy as np
-from linear_classification import LinearClassification
+from .linear_classification import LinearClassification
 
 class SVM(LinearClassification):
 
