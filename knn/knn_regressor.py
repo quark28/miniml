@@ -99,7 +99,7 @@ class KNNRegression:
                 if self.rg == 'classic':
                     numerator[id] = yt
                     denominator[id] = 1
-                else:
+                else: # 'nadaraya_watson'
                     numerator[id] = vote * yt
                     denominator[id] = vote
             

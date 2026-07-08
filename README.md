@@ -29,6 +29,11 @@ miniml/
 │ ├── classification_metrics.py
 │ └── regression_metrics.py
 │
+├── knn/
+│ ├── init.py
+│ ├── knn_regressor.py
+│ └── knn_classifier.py
+│
 ├── tests/
 ├── init.py
 ├── requirements.txt
