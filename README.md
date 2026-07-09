@@ -49,7 +49,7 @@ miniml/
 - ~~Logistic Regression~~
 - ~~SVM: linear~~
 - ~~NBGaussianClassifier~~
-- PCA
+- ~~PCA~~
 - ~~KNN Regression~~
 - ~~KNN Classification~~
 - K-means
