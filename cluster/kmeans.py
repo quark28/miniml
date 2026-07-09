@@ -30,8 +30,6 @@ class KMeans:
             return KMeans._minkowski_maker(self.p)
         elif metric == 'cosine':
             return KMeans._cosine
-        elif metric == 'jacquard':
-            return KMeans._jacquard
 
     def lloyd_algorithm(self, X, K, max_iter, tol):
 
@@ -50,15 +48,31 @@ class KMeans:
             self.coord_centers = new_coord_centers
         return labels
 
-    def fit(self, X, K, metric='euclid', p=None, max_iter=100, tol=1e-4):
+    def get_start_centroids(self, X, K, init_type):
+
+        if init_type == 'random':
+            idx = np.random.choice(X.shape[0], K, replace=False)
+
+        elif init_type == 'kmeans++':
+            idx = [np.random.randint(0, X.shape[0])]
+
+            for _ in range(K-1):
+                matrix_centroid_to_object_distance = self.metric(X[idx][:, None, :], X)
+                min_distance_to_centroids_per_object = matrix_centroid_to_object_distance.min(axis=0)
+                min_distance_to_centroids_per_object **= 2
+                min_distance_to_centroids_per_object /= min_distance_to_centroids_per_object.sum()
+                next_centroid_idx = np.random.choice(X.shape[0], p=min_distance_to_centroids_per_object)
+                idx.append(next_centroid_idx)
+        return X[idx]
+
+    def fit(self, X, K, metric='euclid', p=None, max_iter=100, tol=1e-4, init_type='random'):
         self.p = p
         self.metric = self.get_metric(metric)
         X = np.array(X)
 
         np.random.seed(self.random_state)
 
-        idx = np.random.choice(X.shape[0], K, replace=False)
-        self.coord_centers = X[idx]
+        self.coord_centers = self.get_start_centroids(X, K, init_type)
 
         
         self.train_labels_ = self.lloyd_algorithm(X, K, max_iter, tol)
@@ -72,7 +86,7 @@ class KMeans:
         distances = self.metric(X[:, None, :], self.coord_centers[None, :, :])
         return np.argmin(distances, axis=1)
     
-    def fit_predict(self, X, K, metric='euclid', p=None, max_iter=100, tol=1e-4):
-        self.fit(X, K, metric, p, max_iter, tol)
+    def fit_predict(self, X, K, metric='euclid', p=None, max_iter=100, tol=1e-4, init_type='random'):
+        self.fit(X, K, metric, p, max_iter, tol, init_type)
         
         return self.train_labels_        
