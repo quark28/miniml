@@ -49,10 +49,12 @@ miniml/
 - ~~Logistic Regression~~
 - ~~SVM: linear~~
 - ~~NBGaussianClassifier~~
+- NBBernoulliClassifier
+- NBMultinomialClassifier
 - ~~PCA~~
 - ~~KNN Regression~~
 - ~~KNN Classification~~
-- K-means
+- ~~K-means~~
 - ~~DBSCAN~~
 - Decision Tree Regression
 - Decision Tree Classification
@@ -61,17 +63,16 @@ miniml/
 - Gradient Boosting Regression
 - Gradient Boosting Classification
 - Boostrap
-- A/B Testing
-- Naive bayes: Bernoulli, Multinomial
-- Neural Networks module
 
 ### Future
+- Neural Networks module
+- A/B Testing
 - Gaussian Bayesian classifier
 - The Levenberg-Marquardt Diagonal Method
 - Fisher's linear discriminant
 - Agglomerative hierarchical clustering
 - SVM kernels: poly, rbf, tanh
-- GD's as multi-model tools
+- GD's as multi-class tools
 - Optimization
 
 ### Linear Optimizers (Gradient Descents)

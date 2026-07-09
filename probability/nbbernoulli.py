@@ -1,21 +1,17 @@
 import numpy as np
 
 
-class NBGaussianClassifier:
+class NBBernoulliClassifier:
     
     def calculations(self, X, y):
 
         for i in range(self.classes_num):
             mask = y == self.classes[i]
             class_probability = np.sum(mask) / X.shape[0]
-            class_feature_math_expectations = np.mean(X[mask], axis=0)
-            class_feature_var = np.var(X[mask], axis = 0)
-            class_feature_std = np.std(X[mask], axis = 0)
+            p = np.mean(X[mask], axis=0)
 
             self.classes_apriori_probabilities[i] = class_probability
-            self.feature_math_expectations[i] = class_feature_math_expectations
-            self.feature_var[i] = class_feature_var + 1e-9
-            self.feature_std[i] = class_feature_std + 1e-9
+            self.feature_p[i] = p
 
     def __init__(self):
         pass
@@ -27,9 +23,7 @@ class NBGaussianClassifier:
         self.classes_num = self.classes.shape[0]
 
         self.classes_apriori_probabilities = np.zeros(self.classes_num)
-        self.feature_math_expectations = np.zeros((self.classes_num, n_features))
-        self.feature_var = np.zeros((self.classes_num, n_features))
-        self.feature_std = np.zeros((self.classes_num, n_features))
+        self.feature_p = np.zeros((self.classes_num, n_features)) # row-class, col-feature
 
         self.calculations(X, y)
         return self
@@ -37,9 +31,9 @@ class NBGaussianClassifier:
     def predict(self, X, use_logarithm = True, penalty = None):
 
         penalty = np.ones(self.classes.shape) if penalty is None else penalty
-
-        tensor_class_feature_probability = ( 1 / (np.sqrt(2 * np.pi) * self.feature_std[:, None, :]) ) * np.exp(
-            -((X[None, :, :] - self.feature_math_expectations[:, None, :])**2 / (2 * self.feature_var[:, None, :]))
+        
+        tensor_class_feature_probability = (
+             self.feature_p[:, None, :] ** X ) * ( (1 - self.feature_p)[:, None, :] ** (1 - X) 
             )
 
         if use_logarithm:
@@ -61,6 +55,7 @@ class NBGaussianClassifier:
             probs = np.exp(self.predicted - max_log)
             probs /= probs.sum(axis=0, keepdims=True)
         else:
-            probs = self.predicted / self.predicted.sum(axis=0, keepdims=True)
+            sum_probs = self.predicted.sum(axis=0, keepdims=True)
+            probs = np.divide(self.predicted, sum_probs, out=np.zeros_like(self.predicted), where=sum_probs != 0)
 
         return probs
