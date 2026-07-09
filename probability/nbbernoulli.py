@@ -31,15 +31,20 @@ class NBBernoulliClassifier:
     def predict(self, X, use_logarithm = True, penalty = None):
 
         penalty = np.ones(self.classes.shape) if penalty is None else penalty
-        
-        tensor_class_feature_probability = (
+
+        if use_logarithm:
+
+            tensor_class_feature_probability_logarithmic = X * np.log(self.feature_p[:, None, :] + 1e-9) + \
+        np.log( (1 - self.feature_p)[:, None, :] + 1e-9) * (1 - X)
+            
+            matrix_class_object_probability = np.log(penalty * self.classes_apriori_probabilities)[:, None] + \
+            np.sum(tensor_class_feature_probability_logarithmic, axis=-1)
+        else:
+
+            tensor_class_feature_probability = (
              self.feature_p[:, None, :] ** X ) * ( (1 - self.feature_p)[:, None, :] ** (1 - X) 
             )
 
-        if use_logarithm:
-            matrix_class_object_probability = np.log(penalty * self.classes_apriori_probabilities)[:, None] + \
-            np.sum(np.log(tensor_class_feature_probability + 1e-9), axis=-1)
-        else:
             matrix_class_object_probability = (penalty * self.classes_apriori_probabilities)[:, None] * \
                 np.prod(tensor_class_feature_probability, axis=-1)
 
