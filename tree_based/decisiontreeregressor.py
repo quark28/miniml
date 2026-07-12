@@ -77,7 +77,10 @@ class DecisionTreeRegression:
 
                 IG = root_imp - (left_imp + right_imp)
 
-                if IG > best_IG and IG > self.tol:
+                node_weight = y.shape[0] / self.n_total
+                IG_weight = IG * node_weight
+
+                if IG > best_IG and IG_weight > self.tol:
                     best_IG = IG
                     best_feature_idx = feature_idx
                     best_treshold_value = X[:, feature_idx][obj_idx[i]]
@@ -129,6 +132,7 @@ class DecisionTreeRegression:
         self.impurity_func = self.get_func(impurity_func)
         self.mode = mode
 
+        self.n_total = X.shape[0]
         
         root = Node(data_idx=np.arange(X.shape[0]))
         self.tree = [[root]]
