@@ -2,7 +2,7 @@ import numpy as np
 
 
 class Node:
-    __slots__ = ('is_leaf', 'level', 'pred_value', 'feature', 'threshold', 'left', 'right')
+    __slots__ = ('is_leaf', 'level', 'pred_value', 'feature', 'threshold', 'left', 'right', "data_idx")
     
     def __init__(self, data_idx=None):
         self.is_leaf = False
