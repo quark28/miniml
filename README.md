@@ -60,8 +60,8 @@ miniml/
 - Boostrap
 - ~~Decision Tree Regression~~
 - ~~Decision Tree Classification~~
-- Random Forest Regression
-- Random Forest Classification
+- ~~Random Forest Regression~~
+- ~~Random Forest Classification~~
 - Gradient Boosting Regression
 - Gradient Boosting Classification
 
