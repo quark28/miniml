@@ -48,7 +48,7 @@ class DecisionTreeRegression:
 
         best_IG = -1
         best_feature_idx = None
-        best_treshold_value = None
+        best_threshold_value = None
         best_right_split_idx = None
         best_left_split_idx = None
         best_right_pred = None
