@@ -2,7 +2,7 @@ import numpy as np
 from .decisiontreeregressor import DecisionTreeRegression
 
 
-class RandomForestRegressor:
+class RandomForestRegression:
 
     def __init__(
         self,
