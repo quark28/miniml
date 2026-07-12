@@ -3,11 +3,11 @@ from collections import Counter
 
 class Bagging:
 
-    def __init__(self, model_class, K=10, random_state=42):
+    def __init__(self, model_class, K=10, random_state=42, **model_params):
         self.model_class = model_class
         self.K = K
+        self.model_params = model_params
         self.rng = np.random.default_rng(random_state)
-        pass
     
     def fit(self, X, y, max_samples=1, **train_params):
 
@@ -15,23 +15,16 @@ class Bagging:
         idx = np.arange(X.shape[0])
 
         for i in range(self.K):
-            i_idx = self.rng.choice(idx, size=int(len(idx) * max_samples), replace=True)
-            model = self.model_class()
-            model.fit(X[i_idx], y[i_idx], **train_params)
+            i_idx = self.rng.choice(idx, size=int(X.shape[0] * max_samples), replace=True)
+            model = self.model_class(**self.model_params) 
+            
+            model.fit(X[i_idx], y[i_idx])
             self.ensemble.append(model)
-
         return self
     
     def predict(self, X, target_type='continuous'):
-        self.predictions = []
-
-        for i in range(self.K):
-            model = self.ensemble[i]
-            self.predictions.append(model.predict(X))
-
-        self.predictions = np.array(self.predictions).T
-
+        predictions = np.array([model.predict(X) for model in self.ensemble]).T
         if target_type == 'continuous':
-            return self.predictions.mean(axis=1)
+            return predictions.mean(axis=1)
         elif target_type == 'discrete':
-            return np.array([ Counter(row).most_common(1)[0][0] for row in self.predictions ])
+            return np.array([Counter(row).most_common(1)[0][0] for row in predictions])
