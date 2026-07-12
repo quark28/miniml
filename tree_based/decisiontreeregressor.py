@@ -121,7 +121,7 @@ class DecisionTreeRegression:
         return next_level_of_nodes
 
     def fit(
-            self, X, y, max_depth=10, min_samples_split=1, min_samples_leaf=1, tol=0.01, impurity_func='mse', mode='solo'
+            self, X, y, max_depth=10, min_samples_split=2, min_samples_leaf=1, tol=0.01, impurity_func='mse', mode='solo'
             ):
         self.max_depth = max_depth
         self.min_samples_split = min_samples_split
