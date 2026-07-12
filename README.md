@@ -49,20 +49,20 @@ miniml/
 - ~~Logistic Regression~~
 - ~~SVM: linear~~
 - ~~NBGaussianClassifier~~
-- NBBernoulliClassifier
-- NBMultinomialClassifier
+- ~~NBBernoulliClassifier~~
+- ~~NBMultinomialClassifier~~
 - ~~PCA~~
 - ~~KNN Regression~~
 - ~~KNN Classification~~
 - ~~K-means~~
 - ~~DBSCAN~~
+- Boostrap
 - Decision Tree Regression
 - Decision Tree Classification
 - Random Forest Regression
 - Random Forest Classification
 - Gradient Boosting Regression
 - Gradient Boosting Classification
-- Boostrap
 
 ### Future
 - Neural Networks module
