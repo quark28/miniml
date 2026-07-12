@@ -28,7 +28,7 @@ class DecisionTreeClassification:
         classes, counts = np.unique(y, return_counts=True)
         pred_value = classes[np.argmax(counts)]
         probs = counts / counts.sum()
-        loss = -(probs * np.log(probs + 1e-12)).sum()
+        loss = -(probs * np.log2(probs + 1e-12)).sum()
         return loss, pred_value
     
     @staticmethod
@@ -67,10 +67,10 @@ class DecisionTreeClassification:
         best_right_pred = None
         best_left_pred = None
         
+        root_imp, _ = self.impurity_func(y)
         for feature_idx in idx_features_to_check:
             obj_idx = np.argsort(X[:, feature_idx])
 
-            root_imp, _ = self.impurity_func(y)
             for i in range(1, obj_idx.shape[0]):
 
                 if i < obj_idx.shape[0] - 1 and X[obj_idx[i], feature_idx] == X[obj_idx[i+1], feature_idx]:
@@ -79,7 +79,7 @@ class DecisionTreeClassification:
                 left_split_idx = obj_idx[:i]
                 right_split_idx = obj_idx[i:]
 
-                if self.min_samples_split > right_split_idx.shape[0] or self.min_samples_split > left_split_idx.shape[0]:
+                if self.min_samples_leaf > right_split_idx.shape[0] or self.min_samples_leaf > left_split_idx.shape[0]:
                     continue
 
                 right_imp, rp = self.impurity_func(y[right_split_idx])
@@ -93,7 +93,7 @@ class DecisionTreeClassification:
                 if IG > best_IG and IG > self.tol:
                     best_IG = IG
                     best_feature_idx = feature_idx
-                    best_treshold_value = X[:, feature_idx][obj_idx[i]]
+                    best_treshold_value = ( X[obj_idx[i-1], feature_idx] + X[obj_idx[i], feature_idx] ) / 2
                     best_right_split_idx = right_split_idx
                     best_left_split_idx = left_split_idx
                     best_right_pred = rp
@@ -112,7 +112,7 @@ class DecisionTreeClassification:
                 X[node.data_idx], y[node.data_idx]
                 )
 
-            if level_id == self.max_depth or node_IG <= 0 or node_fidx is None:
+            if level_id == self.max_depth or node_IG <= 0 or node_fidx is None or self.min_samples_split > node.data_idx.shape[0]:
                 node.is_leaf = True
                 _, node.pred_value = self.impurity_func(y[node.data_idx])
                 continue
@@ -134,10 +134,11 @@ class DecisionTreeClassification:
         return next_level_of_nodes
 
     def fit(
-            self, X, y, max_depth=10, min_samples_split=1, tol=0.01, impurity_func='entropy', mode='solo'
+            self, X, y, max_depth=10, min_samples_split=2, min_samples_leaf=1, tol=0.01, impurity_func='entropy', mode='solo'
             ):
         self.max_depth = max_depth
         self.min_samples_split = min_samples_split
+        self.min_samples_leaf = min_samples_leaf
         self.tol = tol
         self.impurity_func = self.get_func(impurity_func)
         self.mode = mode
