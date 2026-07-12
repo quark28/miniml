@@ -19,13 +19,13 @@ class DecisionTreeRegression:
     @staticmethod
     def MSE(y):
         pred_value = np.mean(y)
-        loss = ((y - pred_value) ** 2).sum(axis=0) / len(y)
+        loss = ((y - pred_value) ** 2).sum(axis=0)
         return loss, pred_value
     
     @staticmethod
     def MAE(y):
         pred_value = np.median(y)
-        loss = np.abs((y - pred_value)).sum(axis=0) / len(y)
+        loss = np.abs((y - pred_value)).sum(axis=0)
         return loss, pred_value
 
     def get_func(self, name):
