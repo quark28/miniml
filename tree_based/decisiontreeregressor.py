@@ -70,12 +70,13 @@ class DecisionTreeRegression:
                     continue
 
                 right_imp, rp = self.impurity_func(y[right_split_idx])
-                right_imp *= right_split_idx.shape[0] / y.shape[0]
-
                 left_imp, lp = self.impurity_func(y[left_split_idx])
-                left_imp *= left_split_idx.shape[0] / y.shape[0]
-
-                IG = root_imp - (left_imp + right_imp)
+                
+                n_total = y.shape[0]
+                n_left = left_split_idx.shape[0]
+                n_right = right_split_idx.shape[0]
+                
+                IG = root_imp - ((n_left / n_total) * left_imp + (n_right / n_total) * right_imp)
 
                 if IG > best_IG and IG > self.tol:
                     best_IG = IG
