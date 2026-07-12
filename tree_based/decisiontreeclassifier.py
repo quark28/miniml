@@ -154,6 +154,11 @@ class DecisionTreeClassification:
                 self.tree.append(new_level)
             else:
                 break
+        for node in self.tree[-1]:
+            if not node.is_leaf:
+                node.is_leaf = True
+                if node.pred_value is None:
+                    _, node.pred_value = self.impurity_func(y[node.data_idx])
         return self
 
     def predict(self, X):
