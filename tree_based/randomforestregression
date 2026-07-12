@@ -2,3 +2,59 @@ import numpy as np
 from .decisiontreeregressor import DecisionTreeRegression
 
 
+class RandomForestRegressor:
+
+    def __init__(
+        self,
+        n_estimators=100,
+        max_depth=10,
+        min_samples_split=2,
+        min_samples_leaf=1,
+        tol=0,
+        max_features=None,
+        impurity_func='mse',
+        random_state=42
+    ):
+        self.n_estimators = n_estimators
+        self.max_depth = max_depth
+        self.min_samples_split = min_samples_split
+        self.min_samples_leaf = min_samples_leaf
+        self.tol = tol
+        self.max_features = max_features
+        self.impurity_func = impurity_func
+        self.rng = np.random.default_rng(random_state)
+        
+        self.forest = []
+
+    def get_max_features(self, N):
+        if self.max_features == 'sqrt':
+            return int(np.sqrt(N))
+        elif isinstance(self.max_features, int):
+            return min(self.max_features, N)
+        elif isinstance(self.max_features, float):
+            return max(1, int(self.max_features * N))
+        else:
+            return N
+        
+    def fit(self, X, y):
+        mx_features = self.get_max_features(X.shape[1])
+        idx = np.arange(X.shape[0])
+
+        self.forest = []
+        for i in range(self.n_estimators):
+            tree_seed = self.rng.integers(0, 1_000_000)
+            i_idx = self.rng.choice(idx, size=len(idx), replace=True)
+
+            estimator = DecisionTreeRegression()
+            estimator.fit(
+                X[i_idx], y[i_idx], max_depth = self.max_depth, min_samples_split = self.min_samples_split,
+                min_samples_leaf = self.min_samples_leaf, tol = self.tol, impurity_func = self.impurity_func,
+                mode = 'randomforest', max_features = mx_features, random_state=tree_seed
+            )
+            self.forest.append(estimator)
+
+        return self
+    
+    def predict(self, X):
+        predictions = np.array( [tree.predict(X) for tree in self.forest] )
+        return predictions.mean(axis=0)

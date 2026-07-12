@@ -9,7 +9,7 @@ class Bagging:
         self.model_params = model_params
         self.rng = np.random.default_rng(random_state)
     
-    def fit(self, X, y, max_samples=1, **train_params):
+    def fit(self, X, y, max_samples=1):
 
         self.ensemble = []
         idx = np.arange(X.shape[0])

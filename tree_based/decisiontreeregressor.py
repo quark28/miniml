@@ -42,8 +42,8 @@ class DecisionTreeRegression:
         if self.mode in ('solo', 'bagging', 'gdboosting'):
             idx_features_to_check = np.arange(X.shape[1])
         elif self.mode == 'randomforest':
-            n = np.random.randint(1, X.shape[1] + 1)
-            idx_features_to_check = np.random.choice(np.arange(X.shape[1]), n, replace=False)
+            n = self.max_features
+            idx_features_to_check = self.rng.choice(np.arange(X.shape[1]), n, replace=False)
         
 
         best_IG = -1
@@ -80,13 +80,13 @@ class DecisionTreeRegression:
                 if IG > best_IG and IG > self.tol:
                     best_IG = IG
                     best_feature_idx = feature_idx
-                    best_treshold_value = ( X[obj_idx[i-1], feature_idx] + X[obj_idx[i], feature_idx] ) / 2
+                    best_threshold_value = ( X[obj_idx[i-1], feature_idx] + X[obj_idx[i], feature_idx] ) / 2
                     best_right_split_idx = right_split_idx
                     best_left_split_idx = left_split_idx
                     best_right_pred = rp
                     best_left_pred = lp
         
-        return best_IG, best_feature_idx, best_treshold_value, best_right_split_idx, best_left_split_idx, best_right_pred, best_left_pred
+        return best_IG, best_feature_idx, best_threshold_value, best_right_split_idx, best_left_split_idx, best_right_pred, best_left_pred
 
     def build_tree(self, level_id, level_of_nodes, X, y):
         next_level_of_nodes = []
@@ -99,7 +99,7 @@ class DecisionTreeRegression:
                 X[node.data_idx], y[node.data_idx]
                 )
 
-            if level_id == self.max_depth or node_IG <= 0 or node_fidx is None or self.min_samples_split > node.data_idx.shape[0]:
+            if level_id >= self.max_depth or node_IG <= 0 or node_fidx is None or self.min_samples_split > node.data_idx.shape[0]:
                 node.is_leaf = True
                 _, node.pred_value = self.impurity_func(y[node.data_idx])
                 continue
@@ -121,7 +121,7 @@ class DecisionTreeRegression:
         return next_level_of_nodes
 
     def fit(
-            self, X, y, max_depth=10, min_samples_split=2, min_samples_leaf=1, tol=0.01, impurity_func='mse', mode='solo'
+            self, X, y, max_depth=10, min_samples_split=2, min_samples_leaf=1, tol=0, impurity_func='mse', mode='solo', max_features=None, random_state=42
             ):
         self.max_depth = max_depth
         self.min_samples_split = min_samples_split
@@ -129,6 +129,8 @@ class DecisionTreeRegression:
         self.tol = tol
         self.impurity_func = self.get_func(impurity_func)
         self.mode = mode
+        self.max_features = max_features
+        self.rng = np.random.default_rng(random_state)
         
         root = Node(data_idx=np.arange(X.shape[0]))
         self.tree = [[root]]
