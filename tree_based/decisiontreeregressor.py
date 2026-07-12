@@ -54,10 +54,10 @@ class DecisionTreeRegression:
         best_right_pred = None
         best_left_pred = None
         
+        root_imp, _ = self.impurity_func(y)
         for feature_idx in idx_features_to_check:
             obj_idx = np.argsort(X[:, feature_idx])
 
-            root_imp, _ = self.impurity_func(y)
             for i in range(1, obj_idx.shape[0]):
 
                 if i < obj_idx.shape[0] - 1 and X[obj_idx[i], feature_idx] == X[obj_idx[i+1], feature_idx]:
