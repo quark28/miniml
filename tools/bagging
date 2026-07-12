@@ -1,0 +1,37 @@
+import numpy as np 
+from collections import Counter
+
+class Bagging:
+
+    def __init__(self, model_class, K=10, random_state=42):
+        self.model_class = model_class
+        self.K = K
+        self.rng = np.random.default_rng(random_state)
+        pass
+    
+    def fit(self, X, y, max_samples=1, **train_params):
+
+        self.ensemble = []
+        idx = np.arange(X.shape[0])
+
+        for i in range(self.K):
+            i_idx = self.rng.choice(idx, size=int(len(idx) * max_samples), replace=True)
+            model = self.model_class()
+            model.fit(X[i_idx], y[i_idx], **train_params)
+            self.ensemble.append(model)
+
+        return self
+    
+    def predict(self, X, target_type='continuous'):
+        self.predictions = []
+
+        for i in range(self.K):
+            model = self.ensemble[i]
+            self.predictions.append(model.predict(X))
+
+        self.predictions = np.array(self.predictions).T
+
+        if target_type == 'continuous':
+            return self.predictions.mean(axis=1)
+        elif target_type == 'discrete':
+            return np.array([ Counter(row).most_common(1)[0][0] for row in self.predictions ])

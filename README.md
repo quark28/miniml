@@ -15,6 +15,7 @@ miniml/
 ├── cluster/
 │ ├── init.py
 │ └── dbscan.py
+│ └── kmeans.py
 │
 ├── probability/
 │ ├── init.py
@@ -57,8 +58,8 @@ miniml/
 - ~~K-means~~
 - ~~DBSCAN~~
 - Boostrap
-- Decision Tree Regression
-- Decision Tree Classification
+- ~~Decision Tree Regression~~
+- ~~Decision Tree Classification~~
 - Random Forest Regression
 - Random Forest Classification
 - Gradient Boosting Regression
