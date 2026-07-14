@@ -9,7 +9,6 @@ class GradientBoostingRegression:
         return np.mean((y_pred - y_true) ** 2)
     @staticmethod
     def _mse_loss_func_derivative(y_pred, y_true):
-        N = X.shape[0]
         return 2 * (y_pred - y_true)
     
     @staticmethod
