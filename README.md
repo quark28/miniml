@@ -5,6 +5,7 @@
 ---
 
 ## 📁 Structure
+```text
 miniml/
 ├── linear/
 │   ├── init.py
@@ -56,7 +57,7 @@ miniml/
 ├── requirements.txt
 ├── LICENSE
 └── README.md
-
+```
 ---
 
 ## 📦 Implemented
