@@ -44,7 +44,7 @@ class GradientBoostingRegression:
             self.global_loss_der = self._mae_loss_func_derivative
         
         self.common_loss_fn=common_loss_fn
-        self.early_stopping_rounds=early_stopping_rounds
+        #self.early_stopping_rounds=early_stopping_rounds
         self.tree_mode=tree_mode
         self.max_depth=max_depth
         self.min_samples_split=min_samples_split
