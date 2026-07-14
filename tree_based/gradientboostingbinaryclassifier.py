@@ -2,7 +2,7 @@ import numpy as np
 from .decisiontreeregressor import DecisionTreeRegression
 
 
-class GradientBoostingClassification:
+class GradientBoostingBinaryClassification:
 
     @staticmethod
     def _logloss_loss_func(y_pred, y_true):
