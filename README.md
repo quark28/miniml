@@ -3,69 +3,96 @@
 **Lightweight ML library from scratch. NumPy only.**
 
 ---
+
 ## 📁 Structure
 miniml/
 ├── linear/
-│ ├── init.py
-│ ├── linear_regression.py
-│ ├── linear_classification.py
-│ └── logistic_regression.py
-│ └── svm.py
+│   ├── init.py
+│   ├── linear_regression.py
+│   ├── linear_classification.py
+│   ├── logistic_regression.py
+│   └── svm.py
 │
 ├── cluster/
-│ ├── init.py
-│ └── dbscan.py
-│ └── kmeans.py
+│   ├── init.py
+│   ├── dbscan.py
+│   └── kmeans.py
 │
 ├── probability/
-│ ├── init.py
-│ └── naive_bayes.py
+│   ├── init.py
+│   ├── nbgaussian.py
+│   ├── nbbernoulli.py
+│   └── nbmultinomial.py
 │
-├── tools/
-│ ├── init.py
-│ └── scaler.py
-│
-├── metrics/
-│ ├── init.py
-│ ├── classification_metrics.py
-│ └── regression_metrics.py
+├── tree_based/
+│   ├── init.py
+│   ├── decisiontreeclassifier.py
+│   ├── decisiontreeregressor.py
+│   ├── randomforestclassifier.py
+│   ├── randomforestregressor.py
+│   ├── gradientboostingregression.py
+│   └── gradientboostingbinaryclassification.py
 │
 ├── knn/
-│ ├── init.py
-│ ├── knn_regressor.py
-│ └── knn_classifier.py
+│   ├── init.py
+│   ├── knn_classifier.py
+│   └── knn_regressor.py
+│
+├── tools/
+│   ├── init.py
+│   ├── scaler.py
+│   ├── pca.py
+│   └── bagging.py
+│
+├── metrics/
+│   ├── init.py
+│   ├── classification_metrics.py
+│   └── regression_metrics.py
 │
 ├── tests/
+│   └── ...  # Jupyter notebooks with model testing
+│
 ├── init.py
 ├── requirements.txt
-├── README.md
-└── .gitignore
+├── LICENSE
+└── README.md
 
-## 📦 Planned Features
+---
 
-### Models and features
-- ~~Linear Regression~~
-- ~~Linear Classification~~
-- ~~Scaler~~
-- ~~Logistic Regression~~
-- ~~SVM: linear~~
-- ~~NBGaussianClassifier~~
-- ~~NBBernoulliClassifier~~
-- ~~NBMultinomialClassifier~~
-- ~~PCA~~
-- ~~KNN Regression~~
-- ~~KNN Classification~~
-- ~~K-means~~
-- ~~DBSCAN~~
-- Boostrap
-- ~~Decision Tree Regression~~
-- ~~Decision Tree Classification~~
-- ~~Random Forest Regression~~
-- ~~Random Forest Classification~~
+## 📦 Implemented
+
+### Models
+- Linear Regression
+- Linear Classification
+- Logistic Regression
+- SVM: linear
+- NBGaussianClassifier
+- NBBernoulliClassifier
+- NBMultinomialClassifier
+- KNN Regression
+- KNN Classification
+- K-means
+- DBSCAN
+- Decision Tree Regression
+- Decision Tree Classification
+- Random Forest Regression
+- Random Forest Classification
 - Gradient Boosting Regression
-- Gradient Boosting Classification
+- GradientBoostingBinaryClassification
 
-### Future
+### Tools
+- Scaler
+- PCA
+- Bootstrap
+
+### Metrics
+- Classification metrics (accuracy, precision, recall, F-score, ROC-AUC, PR-AUC)
+- Regression metrics
+
+---
+
+## 🔮 Future
+
 - Neural Networks module
 - A/B Testing
 - Gaussian Bayesian classifier
@@ -75,38 +102,32 @@ miniml/
 - SVM kernels: poly, rbf, tanh
 - GD's as multi-class tools
 - Optimization
-
-### Linear Optimizers (Gradient Descents)
-- ~~Classic GD~~
-- ~~SGD (Stochastic Gradient Descent)~~
-- ~~SAG (Stochastic Average Gradient)~~
-- ~~momentum~~
-- ~~NAG – Nesterov’s accelerated gradient~~
-- ~~AdaDelta (adaptive learning rate)~~
-- ~~AdaGrad~~
-- ~~Adam~~
-- ~~Nadam~~
-- ~~RMSprop~~
-
-### Analytical Solvers
-- ~~Classic (Normal Equation)~~
-- ~~SVD~~
+- GradientBoostingMulticlassClassification
 
 ---
 
-## 🚀 Getting Started
+## ⚙️ Linear Optimizers (Gradient Descents)
 
-```python
-import numpy as np
-from miniml import LinearRegression
+Shared across all linear models (`LinearRegression`, `LinearClassification`, `LogisticRegression`, `SVM`) via a unified `fit(learning_type=...)` interface.
 
-# Generate sample data
-X = np.random.randn(100, 3)
-y = X @ np.array([2, -1, 0.5]) + 3
+- Classic GD
+- SGD (Stochastic Gradient Descent)
+- SAG (Stochastic Average Gradient)
+- Momentum
+- NAG – Nesterov's Accelerated Gradient
+- AdaGrad
+- AdaDelta (adaptive learning rate)
+- RMSprop
+- Adam
+- Nadam
 
-# Train model
-model = LinearRegression(loss='mse', regularizer='ridge', alpha=0.1)
-model.fit(X, y, optimizer='gd', n_epochs=1000)
+## 📐 Analytical Solvers (LinearRegression, MSE only)
 
-# Predict
-predictions = model.predict(X)
+- Classic (Normal Equation)
+- SVD
+
+---
+
+## License
+
+See [LICENSE](LICENSE).
